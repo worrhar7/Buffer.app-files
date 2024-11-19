@@ -1,0 +1,55 @@
+language: java
+jdk:
+  - openjdk11
+  - openjdk14
+
+# Cache dependencies
+cache:
+  directories:
+    - $HOME/.m2
+
+# Build stages
+stages:
+  - test
+  - name: deploy
+    if: branch = main
+
+jobs:
+  include:
+    - stage: test
+      name: "Unit Tests"
+      script: mvn test
+
+    - stage: test
+      name: "Integration Tests"
+      script: mvn verify -Pintegration-tests
+
+    - stage: deploy
+      name: "Deploy to Staging"
+      script: mvn deploy -Pstaging
+
+# Notifications
+notifications:
+  email:
+    recipients:
+      - team@example.com
+    on_success: change
+    on_failure: always
+
+# Before install steps
+before_install:
+  - chmod +x mvnw
+
+# Main build script
+script:
+  - ./mvnw clean install
+
+# After success steps
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+
+# Only build these branches
+branches:
+  only:
+    - main
+    - develop

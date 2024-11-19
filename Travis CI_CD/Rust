@@ -1,0 +1,24 @@
+language: rust
+
+rust:
+  - stable
+  - beta
+  - nightly
+
+matrix:
+  allow_failures:
+    - rust: nightly
+  fast_finish: true
+
+cache: cargo
+
+before_script:
+  - rustup component add clippy
+
+script:
+  - cargo build --verbose
+  - cargo test --verbose
+  - cargo clippy -- -D warnings
+
+notifications:
+  email: false

@@ -1,0 +1,49 @@
+language: python
+python:
+  - "3.7"
+  - "3.8"
+  - "3.9"
+
+# Command to install dependencies
+install:
+  - pip install -r requirements.txt
+  - pip install pytest pytest-cov
+
+# Command to run tests
+script:
+  - pytest --cov=./ tests/
+
+# Specify branches to build
+branches:
+  only:
+    - main
+    - develop
+
+# Cache pip dependencies
+cache: pip
+
+# Run jobs in parallel
+jobs:
+  include:
+    - name: "Lint"
+      python: "3.9"
+      before_script:
+        - pip install flake8
+      script:
+        - flake8 .
+
+    - name: "Docs"
+      python: "3.9"
+      before_script:
+        - pip install sphinx
+      script:
+        - sphinx-build -b html docs docs/_build
+
+after_success:
+  - pip install coveralls
+  - coveralls
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
